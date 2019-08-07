@@ -9,13 +9,6 @@ class Book {
     this.isbn = isbn;
     this.isRead = isRead;
   }
-
-  // static toggleStatus(statusIcon) {
-  //   if (statusIcon.classList.contains(".mark-read-button")) {
-      
-  //   }
-  // }
-
 }
 
 
@@ -23,7 +16,6 @@ class Book {
 class UI {
 
   static displayBooks() {
-    // Just imitate the books coming from local storage for now
     const localStorageBooks = Storage.getBooks();
 
     const userBooks = localStorageBooks;
@@ -43,7 +35,7 @@ class UI {
         <p class="book-isbn">${book.isbn}</p>
         <div class="book-item-buttons">
           <a href="#" class="mark-read-button">
-            <i class="fa fa-check"></i>
+            <i class="fa fa-${UI.bookStatusIcon(book)}"></i>
           </a>
           <a href="#" class="delete-button">
             <i class="fa fa-trash"></i>
@@ -55,13 +47,22 @@ class UI {
     booksCollectionContainer.appendChild(bookItemContainer);
   }
 
-  static deleteBookItem(bookDeleteIcon) {
+  static deleteBookItem(bookDeleteIcon, bookISBN) {
     if (bookDeleteIcon.parentElement.classList.contains("delete-button")) {
       bookDeleteIcon.closest(".book-item-container").remove();
       UI.showMessage("Book removed!", "success");
 
-      const bookISBN = bookDeleteIcon.parentElement.parentElement.parentElement.childNodes[5].textContent;
       Storage.removeBook(bookISBN);
+    }
+  }
+
+  static toogleBookStatusIcon(statusIcon, bookISBN) {
+    if (statusIcon.parentElement.classList.contains("mark-read-button")) {
+      Storage.changeBookReadStatus(bookISBN);
+
+      const bookLibrary = Storage.getBooks();
+      const book = bookLibrary.find(book => book.isbn === bookISBN);
+      statusIcon.parentElement.innerHTML = `<i class='fa fa-${UI.bookStatusIcon(book)}'></i>`;
     }
   }
 
@@ -82,6 +83,14 @@ class UI {
     mainDiv.insertBefore(messageDiv, mainDiv.firstChild);
 
     setTimeout(() => document.querySelector(".alert").remove(), 3000);
+  }
+
+  static bookStatusIcon(book){
+    if (book.isRead) {
+      return "times";
+    } else {
+      return "check";
+    }
   }
 
 }
@@ -116,6 +125,18 @@ class Storage {
 
     localStorage.books = JSON.stringify(bookLibrary);
   }
+
+  static changeBookReadStatus(bookISBN) {
+    let bookLibrary = Storage.getBooks();
+    bookLibrary.forEach((book, index) => {
+      if (book.isbn == bookISBN) {
+        bookLibrary[index].isRead = !bookLibrary[index].isRead;
+      }
+    });
+
+    localStorage.books = JSON.stringify(bookLibrary);
+  }
+
 }
 
 // Events
@@ -147,7 +168,10 @@ document.querySelector("#add-book-form").addEventListener('submit', (addBookEven
 
 });
 
-// 3.remove a book
+// 3.remove a book or toggle book status
 document.querySelector(".books-collection").addEventListener('click', (clickedSection) => {
-  UI.deleteBookItem(clickedSection.target);
+  const bookISBN = clickedSection.target.parentElement.parentElement.parentElement.childNodes[5].textContent;
+  UI.deleteBookItem(clickedSection.target, bookISBN);
+  UI.toogleBookStatusIcon(clickedSection.target, bookISBN);
 });
+
