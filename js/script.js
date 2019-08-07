@@ -55,9 +55,7 @@ class UI {
   }
 
   static deleteBookItem(bookDeleteIcon) {
-    // TODO: rafactor parent element multiple times
     if (bookDeleteIcon.parentElement.classList.contains("delete-button")) {
-      //bookDeleteIcon.parentElement.parentElement.parentElement.parentElement.remove();
       bookDeleteIcon.closest(".book-item-container").remove();
     }
   }
@@ -68,6 +66,19 @@ class UI {
     document.querySelector("#pages-field").value = "";
     document.querySelector("#isbn-field").value = "";
   }
+
+  static showMessage(message, messageType) {
+    const messageDiv = document.createElement("div");
+    const mainDiv = document.querySelector("main");
+
+    messageDiv.className = `alert alert-${messageType}`;
+    messageDiv.innerHTML = message;
+
+    mainDiv.insertBefore(messageDiv, mainDiv.firstChild);
+
+    setTimeout(() => document.querySelector(".alert").remove(), 3000);
+  }
+
 }
 
 // Storage class
@@ -91,14 +102,21 @@ document.querySelector("#add-book-form").addEventListener('submit', (addBookEven
   const pagesNumber = document.querySelector("#pages-field").value;
   const isbn = document.querySelector("#isbn-field").value;
 
-  const newBook = new Book(title, author, pagesNumber, isbn);
+  if (title === "" || author === "" || pagesNumber === "" || isbn == "") {
+    UI.showMessage("Please fill all the fields", "danger");
+  }
+  else {
+    const newBook = new Book(title, author, pagesNumber, isbn);
+    UI.addBookItem(newBook);
+    UI.showMessage("Book added!", "success");
+    UI.clearFields();
+  }
 
-  UI.addBookItem(newBook);
-  UI.clearFields();
 });
 
 // 3.remove a book
 document.querySelector(".books-collection").addEventListener('click', (clickedSection) => {
   //UI.deleteBook(clickedSection.target);
   UI.deleteBookItem(clickedSection.target);
+  UI.showMessage("Book removed!", "success");
 });
