@@ -10,7 +10,12 @@ class Book {
     this.isRead = isRead;
   }
 
-  // Toogle read status
+  // static toggleStatus(statusIcon) {
+  //   if (statusIcon.classList.contains(".mark-read-button")) {
+      
+  //   }
+  // }
+
 }
 
 
@@ -19,11 +24,7 @@ class UI {
 
   static displayBooks() {
     // Just imitate the books coming from local storage for now
-    const localStorageBooks = [
-      {title: "title1", author: "author1", pagesNumber: 100, isbn: "978-1-9028-2271-6"},
-      {title: "title1", author: "author1", pagesNumber: 100, isbn: "978-1-5888-1583-5"},
-      {title: "title1", author: "author1", pagesNumber: 100, isbn: "978-8-6901-7329-7"}
-    ];
+    const localStorageBooks = Storage.getBooks();
 
     const userBooks = localStorageBooks;
 
@@ -57,6 +58,10 @@ class UI {
   static deleteBookItem(bookDeleteIcon) {
     if (bookDeleteIcon.parentElement.classList.contains("delete-button")) {
       bookDeleteIcon.closest(".book-item-container").remove();
+      UI.showMessage("Book removed!", "success");
+
+      const bookISBN = bookDeleteIcon.parentElement.parentElement.parentElement.childNodes[5].textContent;
+      Storage.removeBook(bookISBN);
     }
   }
 
@@ -83,7 +88,34 @@ class UI {
 
 // Storage class
 class Storage {
+  static getBooks() {
+    let bookLibrary;
 
+    if (localStorage.books == undefined) {
+      bookLibrary = [];
+    } else {
+      bookLibrary = JSON.parse(localStorage.books);
+    }
+
+    return bookLibrary;
+  }
+
+  static addBook(book) {
+    let bookLibrary = Storage.getBooks();
+    bookLibrary.push(book);
+    localStorage.books = JSON.stringify(bookLibrary);
+  }
+
+  static removeBook(bookISBN) {
+    let bookLibrary = Storage.getBooks();
+    bookLibrary.forEach((book, index) => {
+      if (book.isbn == bookISBN) {
+        bookLibrary.splice(index, 1);
+      }
+    });
+
+    localStorage.books = JSON.stringify(bookLibrary);
+  }
 }
 
 // Events
@@ -108,6 +140,7 @@ document.querySelector("#add-book-form").addEventListener('submit', (addBookEven
   else {
     const newBook = new Book(title, author, pagesNumber, isbn);
     UI.addBookItem(newBook);
+    Storage.addBook(newBook);
     UI.showMessage("Book added!", "success");
     UI.clearFields();
   }
@@ -116,7 +149,5 @@ document.querySelector("#add-book-form").addEventListener('submit', (addBookEven
 
 // 3.remove a book
 document.querySelector(".books-collection").addEventListener('click', (clickedSection) => {
-  //UI.deleteBook(clickedSection.target);
   UI.deleteBookItem(clickedSection.target);
-  UI.showMessage("Book removed!", "success");
 });
