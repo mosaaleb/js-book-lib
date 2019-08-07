@@ -5,15 +5,19 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 
+main {
+  width: 80%;
+  margin: 0 auto;
+}
+
 .books-collection {
   display: flex;
-  /* justify-content: space-evenly; */
 }
 
 .book-item-container {
   width: 15%;
   border: 1px solid rgba(0, 0, 0, .3);
-  border-radius: 10px;
+  /* border-radius: 10px; */
   padding: 10px 20px;
   margin: 20px;
 }
@@ -36,3 +40,24 @@ input[type=number]::-webkit-outer-spin-button {
   color: #00ab66;
 }
 
+/* messages */
+.alert {
+  width: 60%;
+  margin: 0 auto;
+  padding: 15px;
+  color: #fff;
+  text-align: center;
+  font-size: 18px;
+}
+
+.alert-danger {
+  background-color: #D8000C; 
+}
+
+.alert-success {
+  background-color: #00ab66;
+}
+
+.alert-info {
+  background-color: #ffae42;
+}
